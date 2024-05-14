@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {Loader} from "lucide-react";
 
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -29,14 +30,17 @@ const useDebounce = (value, delay) => {
 
 const HomePage = () => {
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchData = async () => {
       const response = await fetch("https://sheetdb.io/api/v1/0wd75xeogfvfj");
       const data = await response.json();
       setData(data);
+        setIsLoading(false)
     };
     fetchData();
   }, []);
@@ -58,32 +62,43 @@ const HomePage = () => {
             className="max-w-[400px]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={isLoading}
         />
-        <div>
-          <Table>
-            <TableCaption>A list of students.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>SBD</TableHead>
-                <TableHead>Họ và tên</TableHead>
-                <TableHead>Trường</TableHead>
-                <TableHead>Tỉnh</TableHead>
-                <TableHead className="text-right">Tên khi vào lớp Zoom</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{item.SBD}</TableCell>
-                    <TableCell>{item["Họ và tên"]}</TableCell>
-                    <TableCell>{item.Trường}</TableCell>
-                    <TableCell>{item.Tỉnh}</TableCell>
-                    <TableCell className="text-right">{item["Tên khi vào lớp Zoom"]}</TableCell>
-                  </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <>
+          {
+            isLoading ? (
+                <div className="flex justify-center items-center mt-10">
+                    <Loader size="2rem" className="animate-spin" />
+                </div>
+            ) : (
+                <div>
+                  <Table>
+                    <TableCaption>A list of students.</TableCaption>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>SBD</TableHead>
+                        <TableHead>Họ và tên</TableHead>
+                        <TableHead>Trường</TableHead>
+                        <TableHead>Tỉnh</TableHead>
+                        <TableHead className="text-right">Tên khi vào lớp Zoom</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredData.map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">{item.SBD}</TableCell>
+                            <TableCell>{item["Họ và tên"]}</TableCell>
+                            <TableCell>{item.Trường}</TableCell>
+                            <TableCell>{item.Tỉnh}</TableCell>
+                            <TableCell className="text-right">{item["Tên khi vào lớp Zoom"]}</TableCell>
+                          </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+            )
+          }
+        </>
       </div>
   );
 };
